@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberBee - Neuroevolution Drone Simulator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="icon">🐝</span>
+        <h1>CYBER<span class="highlight">BEE</span></h1>
+        <span class="badge">Neuroevolution v1.0</span>
+      </div>
+      <div class="quick-stats">
+        <div class="stat-bubble">
+          <span class="label">Generation:</span>
+          <span class="value" id="header-generation">1</span>
+        </div>
+        <div class="stat-bubble">
+          <span class="label">Best Fitness:</span>
+          <span class="value text-success" id="header-best-fitness">0.00</span>
+        </div>
+        <div class="stat-bubble">
+          <span class="label">Success Rate:</span>
+          <span class="value text-info" id="header-success-rate">0%</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="app-content">
+      <!-- Left Column: Controls & Configuration -->
+      <section class="panel-column controls-column">
+        <div class="panel glass">
+          <div class="panel-header">
+            <h3>⚙️ Simulation Control</h3>
+          </div>
+          <div class="panel-body">
+            <div class="btn-group">
+              <button id="btn-play-pause" class="btn btn-primary">
+                <span class="btn-icon">▶</span> <span id="txt-play-pause">Start</span>
+              </button>
+              <button id="btn-next-gen" class="btn btn-secondary">
+                ⏭️ Next Gen
+              </button>
+              <button id="btn-reset" class="btn btn-danger">
+                🔄 Reset
+              </button>
+            </div>
+            
+            <div class="form-group">
+              <label for="slider-speed">Simulation Speed: <span id="val-speed" class="badge">1x</span></label>
+              <input type="range" id="slider-speed" min="1" max="10" value="1" step="1">
+            </div>
+
+            <div class="form-group">
+              <label for="preset-map">Preset Obstacle Map:</label>
+              <select id="preset-map" class="form-select">
+                <option value="empty">Clear Map (Empty)</option>
+                <option value="simple-maze">Simple Maze</option>
+                <option value="zigzag">Zig-Zag Barriers</option>
+                <option value="dynamic-gate">Dynamic Gates</option>
+                <option value="ring-fire">Ring of Obstacles</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="select-theme">Simulator Theme:</label>
+              <select id="select-theme" class="form-select">
+                <option value="bees" selected>Cyber-Bees 🐝</option>
+                <option value="ants">Cyber-Ants 🐜</option>
+                <option value="drones">Cyber-Drones 🛸</option>
+                <option value="beetles">Cyber-Beetles 🐞</option>
+                <option value="bacteria">Cyber-Bacteria 🦠</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-header">
+            <h3>🖌️ Drawing Tools</h3>
+          </div>
+          <div class="panel-body">
+            <div class="tool-grid">
+              <button id="tool-brush" class="btn btn-tool active" data-tool="brush">
+                🖌️ Wall Brush
+              </button>
+              <button id="tool-rect" class="btn btn-tool" data-tool="rect">
+                ⬜ Box Wall
+              </button>
+              <button id="tool-circle" class="btn btn-tool" data-tool="circle">
+                🟡 Circle Wall
+              </button>
+              <button id="tool-target" class="btn btn-tool" data-tool="target">
+                🎯 Set Target
+              </button>
+              <button id="tool-eraser" class="btn btn-tool btn-tool-danger" data-tool="eraser">
+                🧼 Eraser
+              </button>
+            </div>
+            
+            <div class="form-group mt-2">
+              <label for="slider-brush-size">Brush Size: <span id="val-brush-size" class="badge">20px</span></label>
+              <input type="range" id="slider-brush-size" min="10" max="60" value="20" step="5">
+            </div>
+
+            <button id="btn-clear-obstacles" class="btn btn-outline-danger w-full mt-2">
+              🗑️ Clear All Obstacles
+            </button>
+          </div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-header">
+            <h3>🧬 Evolutionary Engine</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-pop-size">Population Size: <span id="val-pop-size" class="badge">100</span></label>
+              <input type="range" id="input-pop-size" min="20" max="300" value="100" step="10">
+            </div>
+
+            <div class="form-group">
+              <label for="input-mutation-rate">Mutation Rate: <span id="val-mutation-rate" class="badge">5%</span></label>
+              <input type="range" id="input-mutation-rate" min="1" max="50" value="5" step="1">
+            </div>
+
+            <div class="form-group">
+              <label for="input-mutation-amount">Mutation Amount: <span id="val-mutation-amount" class="badge">0.2</span></label>
+              <input type="range" id="input-mutation-amount" min="0.05" max="1.0" value="0.2" step="0.05">
+            </div>
+
+            <div class="form-group">
+              <label for="input-elite-pct">Elitism Percentage: <span id="val-elite-pct" class="badge">10%</span></label>
+              <input type="range" id="input-elite-pct" min="0" max="30" value="10" step="2">
+            </div>
+
+            <div class="form-group">
+              <label for="select-selection">Selection Strategy:</label>
+              <select id="select-selection" class="form-select">
+                <option value="roulette">Roulette Wheel (Fitness Proportionate)</option>
+                <option value="tournament" selected>Tournament Selection</option>
+                <option value="rank">Rank Selection</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel glass">
+          <div class="panel-header">
+            <h3>🧠 Neural Net Topology</h3>
+          </div>
+          <div class="panel-body">
+            <div class="nn-info">
+              <div class="nn-layer-info"><strong>Input Layer:</strong> 11 neurons<br><small class="text-muted">(7 sensors, 2 target vector, 2 velocity)</small></div>
+              <div class="nn-layer-info"><strong>Output Layer:</strong> 2 neurons<br><small class="text-muted">(Steer Force, Thrust Speed)</small></div>
+            </div>
+            <div class="form-group mt-2">
+              <label for="input-hidden-layers">Hidden Layers Structure:</label>
+              <input type="text" id="input-hidden-layers" value="8, 6" placeholder="e.g. 8,6 or 10,8,6" class="form-input">
+              <small class="text-muted mt-1 block">Comma-separated neuron counts for hidden layers. Apply requires Reset.</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Column: Simulation Arena -->
+      <section class="panel-column arena-column">
+        <div class="canvas-container glass">
+          <div class="canvas-header">
+            <div class="canvas-title">
+              <span class="live-dot"></span> SIMULATION ARENA
+            </div>
+            <div class="canvas-toggles">
+              <label class="toggle-switch">
+                <input type="checkbox" id="chk-show-sensors" checked>
+                <span class="slider-switch"></span>
+                <span class="toggle-label">Sensors</span>
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="chk-show-best" checked>
+                <span class="slider-switch"></span>
+                <span class="toggle-label">Highlight Best</span>
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="chk-show-trails" checked>
+                <span class="slider-switch"></span>
+                <span class="toggle-label">Flight Trails</span>
+              </label>
+            </div>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas id="canvas-sim"></canvas>
+            <div class="canvas-overlay" id="canvas-overlay">
+              <div class="overlay-text">PAUSED</div>
+            </div>
+          </div>
+          <div class="canvas-footer">
+            <span>🖱️ <strong>Left Click & Drag:</strong> draw wall. <strong>CTRL + Click:</strong> delete wall.</span>
+            <span id="txt-active-count">Bees Alive: 100/100</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Real-time Analytics & Brain Viz -->
+      <section class="panel-column analytics-column">
+        <!-- Stats -->
+        <div class="panel glass">
+          <div class="panel-header">
+            <h3>📊 Live Metrics</h3>
+          </div>
+          <div class="panel-body metric-grid">
+            <div class="metric-card">
+              <span class="title">Generation</span>
+              <span class="val" id="metric-gen">1</span>
+            </div>
+            <div class="metric-card">
+              <span class="title">Success Rate</span>
+              <span class="val text-success" id="metric-success">0%</span>
+            </div>
+            <div class="metric-card">
+              <span class="title">Best Fitness</span>
+              <span class="val text-warning" id="metric-best">0.00</span>
+            </div>
+            <div class="metric-card">
+              <span class="title">Avg Fitness</span>
+              <span class="val text-primary" id="metric-avg">0.00</span>
+            </div>
+            <div class="metric-card full-width">
+              <span class="title">Time Elapsed (Gen)</span>
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-gen-time" style="width: 0%;"></div>
+              </div>
+              <span class="val-sub" id="metric-time">0.0s / 15.0s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Neural Net Diagram -->
+        <div class="panel glass nn-panel">
+          <div class="panel-header">
+            <h3>🧠 Best Bee's Neural Activation</h3>
+            <span class="badge badge-pulse" id="visualized-bee-id">Bee #1</span>
+          </div>
+          <div class="panel-body nn-viz-body">
+            <canvas id="canvas-nn-viz"></canvas>
+          </div>
+        </div>
+
+        <!-- Progress Chart -->
+        <div class="panel glass chart-panel">
+          <div class="panel-header">
+            <h3>📈 Evolution Progress History</h3>
+          </div>
+          <div class="panel-body chart-body">
+            <canvas id="canvas-chart-viz"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
